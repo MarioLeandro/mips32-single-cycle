@@ -1,0 +1,5 @@
+module MIPS();
+
+wire PC;
+
+endmodule  
