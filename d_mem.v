@@ -6,13 +6,13 @@ module DMem (Address, WriteData, ReadData, MemWrite, MemRead);
 	input wire MemWrite;
 	input wire MemRead;
 	
-	reg [31:0] data [0:127];
+	reg [31:0] data [255:0];
 	
 	integer i;
     
 
     initial begin
-      for (i = 0; i < 128; i = i + 1) begin
+      for (i = 0; i < 256; i = i + 1) begin
         data[i] <= 0;
       end
     end	

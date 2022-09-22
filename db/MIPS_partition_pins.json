@@ -4,14 +4,6 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "PC[0]",
-					"strict" : false
-				},
-				{
-					"name" : "PC[1]",
-					"strict" : false
-				},
-				{
 					"name" : "PC[2]",
 					"strict" : false
 				},
@@ -132,7 +124,135 @@
 					"strict" : false
 				},
 				{
-					"name" : "CLK",
+					"name" : "ALUResult[1]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[2]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[3]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[4]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[5]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[6]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[7]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[8]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[9]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[10]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[11]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[12]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[13]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[14]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[15]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[16]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[17]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[18]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[19]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[20]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[21]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[22]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[23]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[24]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[25]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[26]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[27]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[28]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[29]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[30]",
+					"strict" : false
+				},
+				{
+					"name" : "ALUResult[31]",
+					"strict" : false
+				},
+				{
+					"name" : "clock",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
 					"strict" : false
 				}
 			]

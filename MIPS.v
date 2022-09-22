@@ -41,7 +41,7 @@ module Mux_2x1_NBits #(
     end
 endmodule
 
-module Addr32_0(
+module Adder32_0(
    input [31:0] a, 
    b,
    output [31:0] out);
@@ -60,7 +60,6 @@ module DIG_BitExtender #(
     assign out = {{(outputBits - inputBits){in[inputBits - 1]}}, in};
 endmodule
 
-
 module Shift32(
    input [31:0] a, 
    shamt,
@@ -68,8 +67,7 @@ module Shift32(
 
    assign out = a << shamt;
 endmodule
-
-module Addr32_1(
+module Adder32_1(
    input [31:0] a, 
    b,
    output [31:0] out);
@@ -78,8 +76,8 @@ module Addr32_1(
 endmodule
 
 module MIPS (
-  input CLK,
-  input RST,
+  input clock,
+  input reset,
   output [31:0] PC,
   output [31:0] ALUResult,
   output [31:0] MemData
@@ -87,6 +85,9 @@ module MIPS (
   wire [31:0] PC_temp;
   wire [31:0] NextPC;
   wire [5:0] opcode;
+  wire [1:0] RegDst;
+  wire [1:0] ALUSrc;
+  wire [2:0] ALUOp;
   wire MemToReg;
   wire MemRead;
   wire RegWrite;
@@ -95,9 +96,6 @@ module MIPS (
   wire MemWrite;
   wire Jump;
   wire Jal;
-  wire [1:0] RegDst;
-  wire [1:0] ALUSrc;
-  wire [2:0] ALUOp;
   wire [31:0] instr;
   wire [25:0] j_address;
   wire [15:0] immediate;
@@ -106,8 +104,8 @@ module MIPS (
   wire [5:0] funct;
   wire [4:0] shamt;
   wire [4:0] rd;
-  wire [31:0] RegWD;
-  wire [4:0] RegWAddr;
+  wire [31:0] RegWriteData;
+  wire [4:0] RegWriteAddr;
   wire [31:0] RegData1;
   wire [31:0] s2;
   wire [31:0] ALUResult_temp;
@@ -126,7 +124,6 @@ module MIPS (
   wire zero;
   wire UseShamt;
   wire [27:0] s_j_addr;
-  wire [59:0] s3;
   wire [31:0] sign_imm;
   wire [31:0] zero_imm;
   wire [31:0] branch_offset;
@@ -134,20 +131,20 @@ module MIPS (
   wire [31:0] sign_shamt;
   
   // RegFile
-  RegFile RegFile_i0 (
-    .WriteData( RegWD ),
+  RegFile RegFile (
+    .WriteData( RegWriteData ),
     .ReadAddr1( s1 ),
     .ReadAddr2( s0 ),
-    .WriteAddr( RegWAddr ),
+    .WriteAddr( RegWriteAddr ),
     .RegWrite( RegWrite ),
-    .Clock( CLK ),
-    .Reset( RST ),
+    .Clock( clock ),
+    .Reset( reset ),
     .ReadData1( RegData1 ),
     .ReadData2( s2 )
   );
   
   // DMem
-  DMem DMem_i1 (
+  DMem DMem (
     .Address( ALUResult_temp ),
     .WriteData( s2 ),
     .MemWrite( MemWrite ),
@@ -158,7 +155,7 @@ module MIPS (
   Mux_4x1_NBits #(
     .Bits(32)
   )
-  Mux_4x1_NBits_i2 (
+  Mux_4x1_NBits_1 (
     .sel( ALUSrc ),
     .in_0( s2 ),
     .in_1( sign_imm ),
@@ -166,11 +163,10 @@ module MIPS (
     .in_3( upper_imm ),
     .out( In2 )
   );
-  
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i3 (
+  Mux_2x1_NBits_1 (
     .sel( UseShamt ),
     .in_0( RegData1 ),
     .in_1( sign_shamt ),
@@ -178,7 +174,7 @@ module MIPS (
   );
   
   // Ula
-  Ula Ula_i4 (
+  Ula Ula (
     .In1( In1 ),
     .In2( In2 ),
     .OP( Op ),
@@ -189,17 +185,16 @@ module MIPS (
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i5 (
+  Mux_2x1_NBits_2 (
     .sel( MemToReg ),
     .in_0( ALUResult_temp ),
     .in_1( MemData_temp ),
     .out( ALUMem )
   );
-  
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i6 (
+  Mux_2x1_NBits_3 (
     .sel( JumpRegister ),
     .in_0( NPC1 ),
     .in_1( ALUMem ),
@@ -211,30 +206,30 @@ module MIPS (
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i7 (
+  Mux_2x1_NBits_4 (
     .sel( Jal ),
     .in_0( ALUMem ),
     .in_1( PCPlus4 ),
-    .out( RegWD )
+    .out( RegWriteData )
   );
   
   // PC
-  PC PC_i8 (
-    .clock( CLK ),
+  PC Pc (
+    .clock( clock ),
     .nextPC( NextPC ),
     .PC( PC_temp )
   );
   
   // IMem
-  IMem IMem_i9 (
+  IMem IMem (
     .address( PC_temp ),
     .i_out( instr )
   );
   
-  // Addr32_0
-  Addr32_0 Addr32_0_i10 (
+  // Adder32_0
+  Adder32_0 Adder32_0 (
     .a( PC_temp ),
-    .b( 32'b1 ),
+    .b( 32'b100 ),
     .out( PCPlus4 )
   );
   
@@ -242,8 +237,11 @@ module MIPS (
   assign opcode = instr[31:26];
   
   // Control
-  Control Control_i11 (
+  Control Control (
     .OPCODE( opcode ),
+    .RegDst( RegDst ),
+    .ALUSrc( ALUSrc ),
+    .ALUOp( ALUOp ),
     .MemtoReg( MemToReg ),
     .MemRead( MemRead ),
     .RegWrite( RegWrite ),
@@ -251,39 +249,36 @@ module MIPS (
     .Brchne( BranchNe ),
     .MemWrite( MemWrite ),
     .Jump( Jump ),
-    .Jal( Jal ),
-    .RegDst( RegDst ),
-    .ALUSrc( ALUSrc ),
-    .ALUOp( ALUOp )
+    .Jal( Jal )
   );
   
-  assign s_j_addr[25:0] = j_address;
-  assign s_j_addr[27:26] = 2'b0;
+  assign s_j_addr[1:0] = 2'b0;
+  assign s_j_addr[27:2] = j_address;
   assign immediate = j_address[15:0];
   assign s0 = j_address[20:16];
   assign s1 = j_address[25:21];
-  assign s3[27:0] = s_j_addr;
-  assign s3[59:28] = PCPlus4;
+  assign PCJump[31:28] = PCPlus4[31:28];
+  assign PCJump[27:0] = s_j_addr;
   
   DIG_BitExtender #(
     .inputBits(16),
     .outputBits(32)
   )
-  DIG_BitExtender_i12 (
+  DIG_BitExtender_1 (
     .in( immediate ),
     .out( sign_imm )
   );
   
   assign zero_imm[15:0] = immediate;
   assign zero_imm[31:16] = 16'b0;
-  assign upper_imm[15:0] = immediate;
-  assign upper_imm[31:16] = 16'b0;
+  assign upper_imm[15:0] = 16'b0;
+  assign upper_imm[31:16] = immediate;
   assign funct = immediate[5:0];
   assign shamt = immediate[10:6];
   assign rd = immediate[15:11];
   
   // UlaCtrl
-  UlaCtrl UlaCtrl_i13 (
+  UlaCtrl UlaCtrl (
     .ALUOp( ALUOp ),
     .func( funct ),
     .operation( Op ),
@@ -294,35 +289,33 @@ module MIPS (
   Mux_4x1_NBits #(
     .Bits(5)
   )
-  Mux_4x1_NBits_i14 (
+  Mux_4x1_NBits_2 (
     .sel( RegDst ),
     .in_0( s0 ),
     .in_1( rd ),
-    .in_2( 5'b1 ),
+    .in_2( 5'b11111 ),
     .in_3( 5'b0 ),
-    .out( RegWAddr )
+    .out( RegWriteAddr )
   );
   
   DIG_BitExtender #(
     .inputBits(5),
     .outputBits(32)
   )
-  DIG_BitExtender_i15 (
+  DIG_BitExtender_2 (
     .in( shamt ),
     .out( sign_shamt )
   );
   
   // Shift32
-  Shift32 Shift32_i16 (
+  Shift32 Shift32 (
     .a( sign_imm ),
     .shamt( 32'b10 ),
     .out( branch_offset )
   );
   
-  assign PCJump = s3[31:0];
-  
-  // Addr32_1
-  Addr32_1 Addr32_1_i17 (
+  // Adder32_1
+  Adder32_1 Adder32_1 (
     .a( PCPlus4 ),
     .b( branch_offset ),
     .out( PCBranch )
@@ -331,7 +324,7 @@ module MIPS (
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i18 (
+  Mux_2x1_NBits_5 (
     .sel( PCSrc ),
     .in_0( PCPlus4 ),
     .in_1( PCBranch ),
@@ -340,7 +333,7 @@ module MIPS (
   Mux_2x1_NBits #(
     .Bits(32)
   )
-  Mux_2x1_NBits_i19 (
+  Mux_2x1_NBits_6 (
     .sel( Jump ),
     .in_0( NPC0 ),
     .in_1( PCJump ),
@@ -350,5 +343,4 @@ module MIPS (
   assign PC = PC_temp;
   assign ALUResult = ALUResult_temp;
   assign MemData = MemData_temp;
-  
 endmodule

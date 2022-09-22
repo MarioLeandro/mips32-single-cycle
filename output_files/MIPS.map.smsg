@@ -1,1 +1,1 @@
-Info (10281): Verilog HDL Declaration information at MIPS.v(3): object "PC" differs only in case from object "pc" in the same scope File: C:/Users/Leandro/Documents/arq/MIPS.v Line: 3
+Info (10281): Verilog HDL Declaration information at MIPS.v(81): object "PC" differs only in case from object "Pc" in the same scope File: C:/Users/Leandro/Documents/arq/MIPS.v Line: 81
